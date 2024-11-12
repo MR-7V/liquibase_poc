@@ -34,8 +34,8 @@ jobs:
 
       - name: Set up Liquibase
         run: |
-          wget https://download.liquibase.org/liquibase-4.x.x.tar.gz
-          tar -zxvf liquibase-4.x.x.tar.gz
+          wget https://github.com/liquibase/liquibase/releases/download/v4.23.0/liquibase-4.23.0.tar.gz
+          tar -xvf liquibase-4.23.0.tar.gz
           sudo mv liquibase /usr/local/bin
 
       - name: Validate Changelog

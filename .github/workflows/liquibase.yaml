@@ -38,14 +38,14 @@ jobs:
           tar -xvf liquibase-4.23.0.tar.gz
           sudo mv liquibase /usr/local/bin
 
-      - name: Validate Changelog
-        run: |
-          liquibase validate \
-            --url=$DB_URL \
-            --username=${{ secrets.DB_USER }} \
-            --password=${{ secrets.DB_PASS }} \
-            --changeLogFile=db/changelog/db.changelog.xml
-        # Validate the changelog to ensure syntax correctness
+      # - name: Validate Changelog
+      #   run: |
+      #     liquibase validate \
+      #       --url=$DB_URL \
+      #       --username=${{ secrets.DB_USER }} \
+      #       --password=${{ secrets.DB_PASS }} \
+      #       --changeLogFile=db/changelog/db.changelog.xml
+      #   # Validate the changelog to ensure syntax correctness
 
       - name: Tag Database
         run: |

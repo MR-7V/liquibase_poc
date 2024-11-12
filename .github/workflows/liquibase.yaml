@@ -22,7 +22,7 @@ env:
   DB_USER: ${{ secrets.DB_USER }}
   DB_PASS: ${{ secrets.DB_PASS }}
   # Construct JDBC URL using environment variables and secrets
-  DB_URL: jdbc:mysql://${{ secrets.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}?user=${{ secrets.DB_USER }}&password=${{ secrets.DB_PASS }}
+  DB_URL: jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?user=${{ secrets.DB_USER }}&password=${{ secrets.DB_PASS }}
 
 jobs:
   liquibase:

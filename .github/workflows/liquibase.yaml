@@ -11,6 +11,8 @@ on:
       - 'scripts/**'
       - 'changelog.yml'
       - 'liquibase.*.yaml'
+  workflow_dispatch:
+
 
 env:
   # Define database environment variables from GitHub Secrets

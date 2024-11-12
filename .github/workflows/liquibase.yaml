@@ -36,7 +36,13 @@ jobs:
         run: |
           wget https://github.com/liquibase/liquibase/releases/download/v4.23.0/liquibase-4.23.0.tar.gz
           tar -xvf liquibase-4.23.0.tar.gz
-          sudo mv liquibase /usr/local/bin
+          sudo mv liquibase /usr/local/bin/liquibase
+          sudo chmod +x /usr/local/bin/liquibase/liquibase
+          sudo ln -s /usr/local/bin/liquibase/liquibase /usr/local/bin/liquibase
+          
+          # Add Liquibase to PATH in .bashrc
+          echo 'export PATH=$PATH:/usr/local/bin/liquibase' >> ~/.bashrc
+          source ~/.bashrc
 
       - name: Validate Changelog
         run: |

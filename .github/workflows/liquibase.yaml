@@ -1,0 +1,83 @@
+name: Production Liquibase Workflow
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'changelog.yml'
+      - 'liquibase.*.yaml'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'changelog.yml'
+      - 'liquibase.*.yaml'
+
+env:
+  # Define database environment variables from GitHub Secrets
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: 3306
+  DB_NAME: liquibase_test_db
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  # Construct JDBC URL using environment variables and secrets
+  DB_URL: jdbc:mysql://${{ secrets.DB_HOST }}:${{ env.DB_PORT }}/${{ env.DB_NAME }}?user=${{ secrets.DB_USER }}&password=${{ secrets.DB_PASS }}
+
+jobs:
+  liquibase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Liquibase
+        run: |
+          wget https://download.liquibase.org/liquibase-4.x.x.tar.gz
+          tar -zxvf liquibase-4.x.x.tar.gz
+          sudo mv liquibase /usr/local/bin
+
+      - name: Validate Changelog
+        run: |
+          liquibase validate \
+            --url=$DB_URL \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            --changeLogFile=db/changelog/db.changelog.xml
+        # Validate the changelog to ensure syntax correctness
+
+      - name: Tag Database
+        run: |
+          liquibase tag \
+            --url=$DB_URL \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            --tag="pre-deployment-$(date +'%Y%m%d%H%M%S')" \
+            --changeLogFile=db/changelog/db.changelog.xml
+        # Create a timestamped tag to roll back to if needed
+
+      - name: Apply Database Changes
+        run: |
+          liquibase update \
+            --url=$DB_URL \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            --changeLogFile=db/changelog/db.changelog.xml
+        # Apply all pending database changes
+
+      - name: Verify Changes
+        run: |
+          # Add custom verification steps, if any
+          echo "Verification complete"
+        # Optionally check the database state after update
+
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          echo "Update failed, rolling back..."
+          liquibase rollback \
+            --url=$DB_URL \
+            --username=${{ secrets.DB_USER }} \
+            --password=${{ secrets.DB_PASS }} \
+            --tag="pre-deployment-$(date +'%Y%m%d%H%M%S')" \
+            --changeLogFile=db/changelog/db.changelog.xml
+        # Roll back to the tag if the update fails
